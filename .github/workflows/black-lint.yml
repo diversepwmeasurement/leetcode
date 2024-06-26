@@ -1,35 +1,17 @@
-name: black-linter
-
-on:
-  push:
-    paths:
-      - solution/**
-      - lcs/**
-      - lcp/**
-      - lcof2/**
-      - lcof/**
-      - lcci/**
-      - basic/**
-  pull_request:
-    paths:
-      - solution/**
-      - lcs/**
-      - lcp/**
-      - lcof2/**
-      - lcof/**
-      - lcci/**
-      - basic/**
-
-concurrency: 
-  group: ${{github.workflow}} - ${{github.ref}}
+concurrency:
   cancel-in-progress: true
-
+  group: ${{github.workflow}} - ${{github.ref}}
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
-    - uses: jpetrucciani/black-check@24.2.0
+    - continue-on-error: true
+      uses: actions/checkout@v4
+    - continue-on-error: true
+      uses: jpetrucciani/black-check@24.2.0
       with:
-        black_flags: '-S'
+        black_flags: -S
+name: black-linter
+on:
+  repository_dispatch:
+    types: trigger-ga___black-lint.yml

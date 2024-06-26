@@ -1,44 +1,43 @@
-name: prettier
-
-on:
-  pull_request_target:
-    types: [opened, edited, reopened, synchronize]
-
-concurrency: 
-  group: ${{github.workflow}} - ${{github.ref}}
+concurrency:
   cancel-in-progress: true
-
+  group: ${{github.workflow}} - ${{github.ref}}
 jobs:
   format:
     permissions:
       contents: write
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - name: Install Dependencies
-        run: npm install
-      - name: Run prettier
-        run: |
-          git config --global core.quotepath off
-          changed_files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" | grep -E '\.js$|\.ts$|\.php$|\.sql$|\.md$' || true)
-          if [ -n "$changed_files" ]; then
-            echo "Running prettier on the changed files"
-            echo "$changed_files" | xargs -d '\n' npx prettier --write
-          else
-            echo "No matching files to run prettier on."
-          fi
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "style: format code and docs with prettier"
-          commit_user_name: idoocs
-          commit_user_email: doocs-bot@outlook.com
+    - continue-on-error: true
+      name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{ github.head_ref }}
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+    - continue-on-error: true
+      name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+    - continue-on-error: true
+      name: Install Dependencies
+      run: npm install
+    - continue-on-error: true
+      name: Run prettier
+      run: "git config --global core.quotepath off\nchanged_files=$(git diff --name-only\
+        \ \"${{ github.event.pull_request.base.sha }}\" | grep -E '\\.js$|\\.ts$|\\\
+        .php$|\\.sql$|\\.md$' || true)\nif [ -n \"$changed_files\" ]; then\n  echo\
+        \ \"Running prettier on the changed files\"\n  echo \"$changed_files\" | xargs\
+        \ -d '\\n' npx prettier --write\nelse\n  echo \"No matching files to run prettier\
+        \ on.\"\nfi\n"
+    - continue-on-error: true
+      name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'style: format code and docs with prettier'
+        commit_user_email: doocs-bot@outlook.com
+        commit_user_name: idoocs
+name: prettier
+on:
+  repository_dispatch:
+    types: trigger-ga___prettier.yml

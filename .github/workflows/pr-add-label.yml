@@ -1,28 +1,26 @@
-name: pr-add-label
-
-on:
-  pull_request_target:
-    types: [opened, edited, reopened, synchronize]
-
 concurrency:
-  group: ${{github.workflow}} - ${{github.event_name}}
   cancel-in-progress: true
-
+  group: ${{github.workflow}} - ${{github.event_name}}
 jobs:
   add-label:
     permissions:
       contents: read
       pull-requests: write
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Check PR number
-        id: pr_number
-        run: echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-
-      - name: Run add-label Action
-        uses: thinkasany/pr-label-action@master
-        with:
-          github_token: ${{ secrets.DOOCS_BOT_ACTION_TOKEN }}
-          pr_number: ${{ env.PR_NUMBER }}
-          organize_name: "doocs"
-          team_name: "leetcode-algorithm"
+    - continue-on-error: true
+      id: pr_number
+      name: Check PR number
+      run: echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+    - continue-on-error: true
+      name: Run add-label Action
+      uses: thinkasany/pr-label-action@master
+      with:
+        github_token: ${{ secrets.DOOCS_BOT_ACTION_TOKEN }}
+        organize_name: doocs
+        pr_number: ${{ env.PR_NUMBER }}
+        team_name: leetcode-algorithm
+name: pr-add-label
+on:
+  repository_dispatch:
+    types: trigger-ga___pr-add-label.yml

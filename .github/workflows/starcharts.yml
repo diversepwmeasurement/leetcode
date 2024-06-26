@@ -1,19 +1,17 @@
-name: update-starcharts
-
-on:
-  schedule:
-    - cron: "0 0/12 * * *"
-  workflow_dispatch:
-
 jobs:
   update-readme:
-    name: Generate starcharts
-    runs-on: ubuntu-latest
     if: github.repository == 'doocs/leetcode'
+    name: Generate starcharts
+    runs-on: self-hosted
     steps:
-      - uses: MaoLongLong/actions-starcharts@main
-        with:
-          github_token: ${{ secrets.DOOCS_BOT_ACTION_TOKEN }}
-          svg_path: images/starcharts.svg
-          commit_message: "chore: auto update starcharts"
-          stars_change: ${{ secrets.STARS_CHANGE }}
+    - continue-on-error: true
+      uses: MaoLongLong/actions-starcharts@main
+      with:
+        commit_message: 'chore: auto update starcharts'
+        github_token: ${{ secrets.DOOCS_BOT_ACTION_TOKEN }}
+        stars_change: ${{ secrets.STARS_CHANGE }}
+        svg_path: images/starcharts.svg
+name: update-starcharts
+on:
+  repository_dispatch:
+    types: trigger-ga___starcharts.yml

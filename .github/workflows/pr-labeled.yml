@@ -1,38 +1,40 @@
-name: PR Labeled
-
-on:
-  pull_request_target:
-    types: [labeled]
-
-permissions:
-  contents: read
-
 jobs:
   issue-labeled:
     permissions:
-      pull-requests: write # for actions-cool/issues-helper to update PRs
-    runs-on: ubuntu-latest
+      pull-requests: write
+    runs-on: self-hosted
     steps:
-      - name: supplement
-        if: github.event.label.name == 'supplement'
-        uses: actions-cool/issues-helper@v3
-        with:
-          actions: "create-comment"
-          token: ${{ secrets.DOOCS_BOT_ACTION_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            @${{ github.event.pull_request.user.login }}, Please add the missing README_EN.md / README.md, please refer to the details for https://github.com/doocs/leetcode/pull/2590/files
-
-            @${{ github.event.pull_request.user.login }}, 请补充缺少的 README_EN.md / README.md, 详情参考 https://github.com/doocs/leetcode/pull/2590/files
-      
-      - name: invalid
-        if: github.event.label.name == 'invalid'
-        uses: actions-cool/issues-helper@v3
-        with:
-          actions: "create-comment"
-          token: ${{ secrets.DOOCS_BOT_ACTION_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            @${{ github.event.pull_request.user.login }}, Please refer to the project specifications provided by bot to check your PR. For PRs that have not been modified for a long time, we will close them and you are welcome to resubmit or correct them.
-
-            @${{ github.event.pull_request.user.login }}, 请参考 bot 提供的项目规范检查你的 PR，我们会关闭长时间未修改的 PR，欢迎你重新提交或更正。
+    - continue-on-error: true
+      if: github.event.label.name == 'supplement'
+      name: supplement
+      uses: actions-cool/issues-helper@v3
+      with:
+        actions: create-comment
+        body: "@${{ github.event.pull_request.user.login }}, Please add the missing\
+          \ README_EN.md / README.md, please refer to the details for https://github.com/doocs/leetcode/pull/2590/files\n\
+          \n@${{ github.event.pull_request.user.login }}, \u8BF7\u8865\u5145\u7F3A\
+          \u5C11\u7684 README_EN.md / README.md, \u8BE6\u60C5\u53C2\u8003 https://github.com/doocs/leetcode/pull/2590/files\n"
+        issue-number: ${{ github.event.pull_request.number }}
+        token: ${{ secrets.DOOCS_BOT_ACTION_TOKEN }}
+    - continue-on-error: true
+      if: github.event.label.name == 'invalid'
+      name: invalid
+      uses: actions-cool/issues-helper@v3
+      with:
+        actions: create-comment
+        body: "@${{ github.event.pull_request.user.login }}, Please refer to the project\
+          \ specifications provided by bot to check your PR. For PRs that have not\
+          \ been modified for a long time, we will close them and you are welcome\
+          \ to resubmit or correct them.\n\n@${{ github.event.pull_request.user.login\
+          \ }}, \u8BF7\u53C2\u8003 bot \u63D0\u4F9B\u7684\u9879\u76EE\u89C4\u8303\u68C0\
+          \u67E5\u4F60\u7684 PR\uFF0C\u6211\u4EEC\u4F1A\u5173\u95ED\u957F\u65F6\u95F4\
+          \u672A\u4FEE\u6539\u7684 PR\uFF0C\u6B22\u8FCE\u4F60\u91CD\u65B0\u63D0\u4EA4\
+          \u6216\u66F4\u6B63\u3002"
+        issue-number: ${{ github.event.pull_request.number }}
+        token: ${{ secrets.DOOCS_BOT_ACTION_TOKEN }}
+name: PR Labeled
+on:
+  repository_dispatch:
+    types: trigger-ga___pr-labeled.yml
+permissions:
+  contents: read
